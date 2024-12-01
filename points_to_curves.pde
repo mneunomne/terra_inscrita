@@ -7,7 +7,6 @@ ArrayList<ArrayList<PVector>> curves = new ArrayList<ArrayList<PVector>>();
 
 PVector currentPosition = new PVector(0, 0); // Track the current position
 
-
 PGraphics pg;
 float D = 1000; // Distance threshold to simplify points into one curve
 float d = 2;
@@ -16,9 +15,6 @@ boolean saveFrames = true;
 boolean animation =false;
 boolean setByMouse = false;
 PImage bg;
-
-// gcode text file
-PrintWriter output;
 
 int steps_per_pixel = 68;
 
@@ -33,8 +29,6 @@ void setup() {
   background(255);
   image(bg, 0, 0, width, height);
   
-
-  output = createWriter("output.gcode");
 
   // Initialize the PGraphics object
   pg = createGraphics(1000, 1000);
@@ -128,15 +122,13 @@ boolean isClockwise(PVector p1, PVector p2, PVector center) {
 }
 
 // Parse G-code to extract X and Y values
-void updateCurrentPosition(String gcodeLine) {
+PVector updateCurrentPosition(String gcodeLine) {
   String[] tokens = splitTokens(gcodeLine, " X Y");
-  for (int i = 0; i < tokens.length; i++) {
-    if (tokens[i].equals("X") && i + 1 < tokens.length) {
-      currentPosition.x = float(tokens[i + 1]);
-    } else if (tokens[i].equals("Y") && i + 1 < tokens.length) {
-      currentPosition.y = float(tokens[i + 1]);
-    }
-  }
+  printArray(tokens);
+  currentPosition.x = ((float(tokens[1]) / steps_per_pixel) * -1) / pg.width * width;
+  currentPosition.y = (float(tokens[2]) / steps_per_pixel) / pg.height * width + (height - width) / 2;
+  println("currentPosition", currentPosition.x, currentPosition.y);
+  return currentPosition;
 }
 
 void calculateCurves () {
@@ -242,16 +234,13 @@ void drawImage () {
       saveFrame("frames/####.png");
     }
   }
-
-  output.flush();  // Writes the remaining data to the file
-  output.close();  // Finishes the file
 }
 
 void draw () {
   listenToPort();
   stroke(255, 0, 0);
   noFill();
-  ellipse(currentPosition.x, currentPosition.y, 10, 10);
+  ellipse(int(currentPosition.x), int(currentPosition.y), 10, 10);
 }
   
 
@@ -296,7 +285,8 @@ void sendLine () {
   String message = lines[lineIndex];
   if (message.contains("G")) {
     // display current position on screen
-    updateCurrentPosition(message); // Parse and update the position
+    PVector pos = updateCurrentPosition(message); // Parse and update the position
+    ellipse(pos.x, pos.y, 10, 10);
     port.write(message + "\n");
   }
   println("GCODE: " + message);
@@ -316,10 +306,5 @@ void keyPressed () {
     if (curveIndex >= curves.size()) {
       curveIndex = 0;
     }
-  }
-
-
-  if (key == 's') {
-    sendS();
   }
 }
