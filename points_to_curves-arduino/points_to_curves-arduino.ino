@@ -1,113 +1,71 @@
-#define STEP_PIN_X 2
-#define DIR_PIN_X 5
-#define STEP_PIN_Y 3
-#define DIR_PIN_Y 6
-#define ENA_PIN 8
-
-#include <GCodeParser.h>    
-
-GCodeParser GCode = GCodeParser();
-
-
-long curX = 0L;
-long curY = 0L;
-
-int steps_per_pixel = 68;
+#define SERIAL_RX_BUFFER_SIZE 1024
+const int numChars = 99;           // Maximum size of each command
+const int maxCommands = 10;         // Maximum number of commands in the queue
+char commandQueue[maxCommands][numChars]; // Queue to store G-code commands
+int queueHead = 0;                  // Points to the next command to execute
+int queueTail = 0;                  // Points to where the next command is stored
+boolean queueFull = false;          // Indicates if the queue is full
+boolean newData = false;            // Flag for new data
 
 void setup() {
-  Serial.begin(115200);
-
-  pinMode(STEP_PIN_X, OUTPUT);
-  pinMode(DIR_PIN_X, OUTPUT);
-  pinMode(STEP_PIN_Y, OUTPUT);
-  pinMode(DIR_PIN_Y, OUTPUT);
-  pinMode(ENA_PIN, OUTPUT);
-
-  digitalWrite(ENA_PIN, LOW); // Enable motors
-  Serial.println("Ready");
+    Serial.begin(115200);
+    Serial.println("<Arduino ready>");
 }
 
 void loop() {
-  if (Serial.available() > 0) {
-    String command = Serial.readStringUntil('\n');
-    handleCommand(command);
-  }
+    recvWithStartEndMarkers(); // Read and queue incoming data
+    processNextCommand();      // Execute the next command in the queue
 }
 
-void handleCommand(String command) {
-  command.trim();
+void recvWithStartEndMarkers() {
+    static boolean recvInProgress = false;
+    static int ndx = 0;
+    char startMarker = '<';
+    char endMarker = '>';
+    char rc;
 
-  if (command.startsWith("G2") || command.startsWith("G3")) {
-    bool clockwise = command.startsWith("G2");
-    float x = extractValue(command, 'X', curX / steps_per_pixel);
-    float y = extractValue(command, 'Y', curY / steps_per_pixel);
-    float i = extractValue(command, 'I', 0);
-    float j = extractValue(command, 'J', 0);
-
-    moveArc(curX, curY, x * steps_per_pixel, y * steps_per_pixel, i * steps_per_pixel, j * steps_per_pixel, clockwise);
-    curX = x * steps_per_pixel;
-    curY = y * steps_per_pixel;
-  }
-}
-
-float extractValue(String command, char key, float defaultValue) {
-  int index = command.indexOf(key);
-  if (index != -1) {
-    return command.substring(index + 1).toFloat();
-  }
-  return defaultValue;
-}
-
-void moveArc(long startX, long startY, long endX, long endY, long i, long j, bool clockwise) {
-  float cx = startX + i;
-  float cy = startY + j;
-  float radius = sqrt(i * i + j * j);
-
-  float startAngle = atan2(startY - cy, startX - cx);
-  float endAngle = atan2(endY - cy, endX - cx);
-
-  if (clockwise && endAngle > startAngle) endAngle -= 2 * M_PI;
-  if (!clockwise && endAngle < startAngle) endAngle += 2 * M_PI;
-
-  int steps = 100; // Resolution of the arc
-  for (int s = 0; s <= steps; s++) {
-    float t = (float)s / steps;
-    float angle = startAngle + t * (endAngle - startAngle);
-
-    long x = cx + radius * cos(angle);
-    long y = cy + radius * sin(angle);
-
-    moveTo(x, y);
-  }
-}
-
-void moveTo(long x, long y) {
-  long diffX = x - curX;
-  long diffY = y - curY;
-
-  int dirX = (diffX > 0) ? LOW : HIGH;
-  int dirY = (diffY > 0) ? LOW : HIGH;
-
-  digitalWrite(DIR_PIN_X, dirX);
-  digitalWrite(DIR_PIN_Y, dirY);
-
-  long stepsX = abs(diffX);
-  long stepsY = abs(diffY);
-  long steps = max(stepsX, stepsY);
-
-  for (long i = 0; i < steps; i++) {
-    if (i < stepsX) {
-      digitalWrite(STEP_PIN_X, HIGH);
-      delayMicroseconds(1);
-      digitalWrite(STEP_PIN_X, LOW);
+    while (Serial.available() > 0) {
+        rc = Serial.read();
+        Serial.print(rc); 
+        if (recvInProgress) {
+            if (rc != endMarker) {
+                if (ndx < numChars - 1) { // Prevent overflow
+                    commandQueue[queueTail][ndx] = rc;
+                    ndx++;
+                }
+            } else { // End marker received
+                commandQueue[queueTail][ndx] = '\0'; // Null-terminate
+                recvInProgress = false;
+                ndx = 0;
+                enqueueCommand(); // Add to queue
+            }
+        } else if (rc == startMarker) {
+            recvInProgress = true;
+        }
     }
-    if (i < stepsY) {
-      digitalWrite(STEP_PIN_Y, HIGH);
-      delayMicroseconds(1);
-      digitalWrite(STEP_PIN_Y, LOW);
+}
+
+void enqueueCommand() {
+    if (!queueFull) {
+        queueTail = (queueTail + 1) % maxCommands; // Move to the next position
+        if (queueTail == queueHead) { // Check if the queue is full
+            queueFull = true;
+        }
+    } else {
+        Serial.println("Queue full! Command discarded.");
     }
-    delayMicroseconds(100); // Adjust delay for speed control
-  }
-  curX = x;
-  curY = y;
+}
+
+void processNextCommand() {
+    if (queueHead != queueTail || queueFull) {
+        // Execute the command at the head of the queue
+        Serial.println(commandQueue[queueHead]);
+
+        // Simulate G-code execution with a delay (replace with actual execution logic)
+        delay(100); // Simulates time taken to process the command
+
+        // Remove the command from the queue
+        queueHead = (queueHead + 1) % maxCommands;
+        queueFull = false;
+    }
 }
