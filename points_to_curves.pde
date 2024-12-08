@@ -13,9 +13,9 @@ PVector prevPosition = new PVector(0, 0); // Track the current position
 PVector currentPosition = new PVector(0, 0); // Track the current position
 
 // Constants and parameters
-float D = 5; // Distance threshold to simplify points into one curve
+float D = 280; // Distance threshold to simplify points into one curve
 float d = 2;
-int steps_per_pixel = 68;
+int steps_per_pixel = 72;
 int curveIndex = 0;
 int lineIndex = 0;
 
@@ -197,7 +197,10 @@ void listenToPort() {
         if (curveIndex >= curves.size()) {
           curveIndex = 0;
           lineIndex = 0;
-          D += 50;
+          D += 20;
+          if (D > 300) {
+            D = 20;
+          }
           calculateCurves();
           drawImage();
         }

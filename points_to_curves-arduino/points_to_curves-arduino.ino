@@ -32,6 +32,10 @@ String test_commands [11] = {
   "G3 X-48756.0 Y10404.0 I38.04663 J9.554199"
 };
 
+int steps_per_pixel = 72;
+int canvas_width = steps_per_pixel * 1000;
+int canvas_height = steps_per_pixel * 1000;
+
 
 int microdelay = 200;
 
@@ -69,6 +73,34 @@ void setup() {
   start();
 
   //testCurves();
+}
+
+void start () {
+  delay(100);
+
+  digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
+  digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
+  // initial movement 
+  moveX(500L, 1, 500, false);
+  moveY(500L, -1, 500, false);
+  moveX(500L, -1, 500, false);
+  moveY(500L, 1, 500, false);
+
+  goHome();
+
+  Serial.println("r");
+
+  // bigSquare();
+}
+
+void bigSquare() {
+  // go to the top left corner
+  //moveTo(0, 0);
+  //
+  // move(-71000L, 500L , 100);
+  //move(-72000L, 72000L , 100);
+  //move(-500L, 72000L , 100);
+  //move(-500L, 500L , 100);
 }
 
 void loop() {
@@ -140,23 +172,6 @@ void goHome () {
   moveX(100000L, 1, 200, false);
   moveY(100000L, -1, 200, false);
 } 
-
-
-void start () {
-  delay(100);
-
-  digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
-  digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
-  // initial movement 
-  moveX(500L, 1, 500, false);
-  moveY(500L, -1, 500, false);
-  moveX(500L, -1, 500, false);
-  moveY(500L, 1, 500, false);
-
-  goHome();
-
-  Serial.println("r");
-}
 
 
 long extractValue(String command, char key, float defaultValue) {
