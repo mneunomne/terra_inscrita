@@ -31,14 +31,14 @@ void setup() {
   // Initialize components
   mapCoordinator = new MapCoordinator();
   curveManager = new CurveManager();
-  serialController = new SerialController(this, 5, curveManager);
+  serialController = new SerialController(this, 0, curveManager);
   uiManager = new UIManager(this, curveManager);
   
   // Setup websocket server
   setupWebsocketServer();
   
   // Load data and prepare visualization
-  curveManager.loadData("rios_barreiras.csv");
+  curveManager.loadData("rios_barreiras_escritas.csv");
   curveManager.calculateCurves();
   uiManager.drawImage();
 }
