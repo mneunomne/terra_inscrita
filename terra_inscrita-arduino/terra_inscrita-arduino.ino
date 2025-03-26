@@ -42,7 +42,7 @@ int canvas_width = steps_per_pixel * 1000;
 int canvas_height = steps_per_pixel * 1000;
 
 
-int microdelay = 200;
+int microdelay = 800;
 
 #include <GCodeParser.h>
 
@@ -86,10 +86,10 @@ void start () {
   digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
   digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
   // initial movement 
-  //moveX(500L, 1, 500, false);
-  //moveY(500L, -1, 500, false);
-  //moveX(500L, -1, 500, false);
-  //moveY(500L, 1, 500, false);
+  moveX(100L, 1, microdelay, false);
+  moveY(10L, -1, microdelay, false);
+  moveX(100L, -1, microdelay, false);
+  moveY(10L, 1, microdelay, false);
 
   //goHome();
 
@@ -109,7 +109,7 @@ void bigSquare() {
 }
 
 void loop() {
-  //listenToPort();
+  listenToPort();
 }
 
 bool checkLimitX(){
@@ -247,16 +247,16 @@ void moveTo(long x, long y) {
     if (i < stepsX) {
       if (checkLimitX()) break;
       digitalWrite(STEP_PIN_X, HIGH);
-      delayMicroseconds(1);
+      delayMicroseconds(microdelay);
       digitalWrite(STEP_PIN_X, LOW);
     }
     if (i < stepsY) {
       if (checkLimitY()) break;
       digitalWrite(STEP_PIN_Y, HIGH);
-      delayMicroseconds(1);
+      delayMicroseconds(microdelay);
       digitalWrite(STEP_PIN_Y, LOW);
     }
-    delayMicroseconds(200); // Adjust delay for speed control
+    delayMicroseconds(microdelay); // Adjust delay for speed control
   }
   curX = x;
   curY = y;
@@ -348,7 +348,7 @@ void moveX (long steps, int dir, int microdelay, bool ignoreLimit) {
     }
     curX += 1 * dir;
     digitalWrite(STEP_PIN_X,HIGH);
-    delayMicroseconds(1);
+    delayMicroseconds(microdelay);
     digitalWrite(STEP_PIN_X,LOW);
     delayMicroseconds(microdelay);
   }
@@ -368,7 +368,7 @@ void moveY (long steps, int dir, int microdelay, bool ignoreLimit) {
     }
     curY += 1 * dir;
     digitalWrite(STEP_PIN_Y,HIGH);
-    delayMicroseconds(1);
+    delayMicroseconds(microdelay);
     digitalWrite(STEP_PIN_Y,LOW);
     delayMicroseconds(microdelay);
   }

@@ -32,6 +32,7 @@ class SerialController {
   void listenToPort() {
     if (port.available() > 0) {
       String inBuffer = port.readStringUntil('\n');
+      println("inBuffer: " + inBuffer);
       if (inBuffer != null && inBuffer.contains("OK")) {
         lineIndex++;
         if (lineIndex >= lines.length) {
