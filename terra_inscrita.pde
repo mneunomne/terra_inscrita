@@ -31,7 +31,7 @@ void setup() {
   // Initialize components
   mapCoordinator = new MapCoordinator();
   curveManager = new CurveManager();
-  serialController = new SerialController(this, 0, curveManager);
+  serialController = new SerialController(this, 2, curveManager);
   uiManager = new UIManager(this, curveManager);
   
   // Setup websocket server
