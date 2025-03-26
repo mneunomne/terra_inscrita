@@ -4,6 +4,9 @@
 #define STEP_PIN_Y 3
 #define DIR_PIN_Y 6
 
+#define STEP_PIN_Z 4
+#define DIR_PIN_Z 7
+
 #define ENA_PIN 8
 
 #define microX1 1
@@ -16,6 +19,8 @@
 
 #define limitX 9
 #define limitY 10
+#define limitY 12
+
 
 int numCommands = 11;
 String test_commands [11] = {
@@ -81,12 +86,12 @@ void start () {
   digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
   digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
   // initial movement 
-  moveX(500L, 1, 500, false);
-  moveY(500L, -1, 500, false);
-  moveX(500L, -1, 500, false);
-  moveY(500L, 1, 500, false);
+  //moveX(500L, 1, 500, false);
+  //moveY(500L, -1, 500, false);
+  //moveX(500L, -1, 500, false);
+  //moveY(500L, 1, 500, false);
 
-  goHome();
+  //goHome();
 
   Serial.println("r");
 
@@ -104,7 +109,7 @@ void bigSquare() {
 }
 
 void loop() {
-  listenToPort();
+  //listenToPort();
 }
 
 bool checkLimitX(){
