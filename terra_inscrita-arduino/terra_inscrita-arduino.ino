@@ -4,9 +4,6 @@
 #define STEP_PIN_Y 3
 #define DIR_PIN_Y 6
 
-#define STEP_PIN_Z 4
-#define DIR_PIN_Z 7
-
 #define ENA_PIN 8
 
 #define microX1 1
@@ -19,7 +16,6 @@
 
 #define limitX 9
 #define limitY 10
-#define limitY 12
 
 
 int numCommands = 11;
@@ -42,14 +38,14 @@ int canvas_width = steps_per_pixel * 1000;
 int canvas_height = steps_per_pixel * 1000;
 
 
-int microdelay = 800;
+int microdelay = 500;
 
 #include <GCodeParser.h>
 
 GCodeParser GCode = GCodeParser();
 
 int minDelay = 2;
-int maxDelayDefault = 200;
+int maxDelayDefault = 500;
 
 boolean reachedXLimit = false;
 boolean reachedYLimit = false;
@@ -68,8 +64,10 @@ void setup() {
   
   pinMode(STEP_PIN_X,OUTPUT);
   pinMode(DIR_PIN_X,OUTPUT);
+
   pinMode(STEP_PIN_Y,OUTPUT);
   pinMode(DIR_PIN_Y,OUTPUT);
+  
   pinMode(ENA_PIN,OUTPUT);
 
   pinMode(limitX, INPUT_PULLUP);
@@ -84,14 +82,14 @@ void start () {
   delay(100);
 
   digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
-  digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
+  //digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
   // initial movement 
   moveX(100L, 1, microdelay, false);
-  moveY(10L, -1, microdelay, false);
+  moveY(100L, -1, microdelay, false);
   moveX(100L, -1, microdelay, false);
-  moveY(10L, 1, microdelay, false);
+  moveY(100L, 1, microdelay, false);
 
-  //goHome();
+  goHome();
 
   Serial.println("r");
 
@@ -208,7 +206,7 @@ void moveArc(long startX, long startY, long endX, long endY, long i, long j, boo
     long x = cx + radius * cos(angle);
     long y = cy + radius * sin(angle);
 
-    move(x, y, 100);
+    move(x, y, microdelay);
   }
 }
 
@@ -343,7 +341,7 @@ void moveX (long steps, int dir, int microdelay, bool ignoreLimit) {
   }
   for (int i = 0; i < steps; i++) {
     if (checkLimitX() && !ignoreLimit) {
-      moveX(1000L, -dir, 500, true);
+      moveX(1000L, -dir, microdelay, true);
       return;
     }
     curX += 1 * dir;
@@ -354,22 +352,23 @@ void moveX (long steps, int dir, int microdelay, bool ignoreLimit) {
   }
   
 }
+void moveY(long steps, int dir, int microdelay, bool ignoreLimit) {
+  // Set direction for both motors
+  digitalWrite(DIR_PIN_Y, (dir > 0) ? LOW : HIGH);
+  delayMicroseconds(1); // Small delay to allow direction change to take effect
 
-void moveY (long steps, int dir, int microdelay, bool ignoreLimit) {
-  if (dir > 0) {
-      digitalWrite(DIR_PIN_Y,LOW); // enable motor HIGH -> DISABLE
-  } else {
-      digitalWrite(DIR_PIN_Y,HIGH); // enable motor HIGH -> DISABLE
-  }
-  for (int i = 0; i < steps; i++) {
+  for (long i = 0; i < steps; i++) {
     if (checkLimitY() && !ignoreLimit) {
-      moveY(1000L, -dir, 500, true);
-      return;
+      moveY(1000L, -dir, microdelay, true);
+      return; // Stop instead of making a recursive call
     }
-    curY += 1 * dir;
-    digitalWrite(STEP_PIN_Y,HIGH);
+
+    curY += dir; // Update position counter
+
+    // Step both motors simultaneously
+    digitalWrite(STEP_PIN_Y, HIGH);
     delayMicroseconds(microdelay);
-    digitalWrite(STEP_PIN_Y,LOW);
+    digitalWrite(STEP_PIN_Y, LOW);
     delayMicroseconds(microdelay);
   }
 }
