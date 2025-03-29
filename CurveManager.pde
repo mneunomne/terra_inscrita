@@ -6,7 +6,7 @@ class CurveManager {
   ArrayList<ArrayList<PVector>> curves = new ArrayList<ArrayList<PVector>>();
   
   // Constants and parameters
-  float D = 10; // Distance threshold to simplify points into one curve
+  float D = 0; // Distance threshold to simplify points into one curve
   float d = 20;
   int steps_per_pixel = 34;
   int curveIndex = 0;

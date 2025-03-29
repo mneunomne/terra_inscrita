@@ -38,7 +38,7 @@ void setup() {
   setupWebsocketServer();
   
   // Load data and prepare visualization
-  curveManager.loadData("rios_barreiras_escritas.csv");
+  curveManager.loadData("rios_barreiras_escritas3.csv");
   curveManager.calculateCurves();
   uiManager.drawImage();
   animation = true;
