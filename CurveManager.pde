@@ -6,7 +6,7 @@ class CurveManager {
   ArrayList<ArrayList<PVector>> curves = new ArrayList<ArrayList<PVector>>();
   
   // Constants and parameters
-  float D = 0; // Distance threshold to simplify points into one curve
+  float D = 2; // Distance threshold to simplify points into one curve
   float d = 20;
   int steps_per_pixel = 34;
   int curveIndex = 0;
@@ -36,26 +36,46 @@ class CurveManager {
     }
   }
   
-  void calculateCurves() {
-    curves.clear();
-    ArrayList<PVector> group = new ArrayList<PVector>();
-    float accumulatedDistance = 0;
-  
-    for (int i = 1; i < points.length; i++) {
-      PVector p0 = points[i - 1];
-      PVector p1 = points[i];
-      float dist = p0.dist(p1);
-      accumulatedDistance += dist;
-      group.add(p0);
-  
-      if (accumulatedDistance >= D || i == points.length - 1) {
-        group.add(p1);
-        curves.add(new ArrayList<PVector>(group));
-        group.clear();
-        accumulatedDistance = 0;
-      }
+void calculateCurves() {
+  curves.clear();
+  ArrayList<PVector> group = new ArrayList<PVector>();
+  float accumulatedDistance = 0;
+  float angleThreshold = 45; // Angle change threshold in degrees
+  Float lastAngle = null;
+
+  for (int i = 1; i < points.length; i++) {
+    PVector p0 = points[i - 1];
+    PVector p1 = points[i];
+    float dist = p0.dist(p1);
+    accumulatedDistance += dist;
+
+    float angle = degrees(PVector.sub(p1, p0).heading());
+
+    if (lastAngle == null) {
+      lastAngle = angle; // Initialize tracking
+    }
+
+    group.add(p0);
+
+    boolean angleExceeded = abs(angle - lastAngle) > angleThreshold;
+    boolean distanceExceeded = accumulatedDistance >= D;
+
+    if (angleExceeded && distanceExceeded) {
+      group.add(p1);
+      curves.add(new ArrayList<PVector>(group));
+      group.clear();
+      accumulatedDistance = 0;
+      lastAngle = angle; // Reset angle tracking
+    } else {
+      lastAngle = angle;
+    }
+
+    if (i == points.length - 1) {
+      group.add(p1);
+      curves.add(new ArrayList<PVector>(group));
     }
   }
+}
   
   PVector[] prepareBezierPoints(ArrayList<PVector> group) {
     PVector[] bezierPoints = new PVector[4];
@@ -78,13 +98,12 @@ class CurveManager {
     curveIndex++;
     if (curveIndex >= curves.size()) {
       curveIndex = 0;
-      
       // Optional: adjust distance parameter
       //D += 20;
       //if (D > 300) {
       //        D = 20;
       //}
-      calculateCurves();
+      //calculateCurves();
     }
   }
   

@@ -32,7 +32,7 @@ class SerialController {
   void listenToPort() {
     if (port.available() > 0) {
       String inBuffer = port.readStringUntil('\n');
-      //println("inBuffer: " + inBuffer);
+      println("inBuffer: " + inBuffer);
       if (inBuffer != null && inBuffer.contains("OK")) {
         lineIndex++;
         if (lineIndex >= lines.length) {
@@ -45,12 +45,11 @@ class SerialController {
   }
   
   void sendLine() {
-    println("[MachineController] Sending line " + lineIndex + "..." + lines.length);
+    //println("[MachineController] Sending line " + lineIndex);
     ArrayList<PVector> group = curveManager.getCurrentCurve();
     PVector[] bezierPoints = curveManager.prepareBezierPoints(group);
     String gcode = bezierToGcode(bezierPoints[0], bezierPoints[1], bezierPoints[2], bezierPoints[3]);
     lines = split(gcode, '\n');
-  
     if (lineIndex < lines.length && lines[lineIndex].contains("G")) {
       PVector pos = updateCurrentPosition(lines[lineIndex]);
       port.write(lines[lineIndex] + "\n");
@@ -61,7 +60,7 @@ class SerialController {
   String bezierToGcode(PVector p0, PVector p1, PVector p2, PVector p3) {
     StringBuilder gcode = new StringBuilder("G0 X").append(p0.x).append(" Y").append(p0.y).append("\n");
     PVector prevPoint = p0;
-    int steps = 50;
+    int steps = 2;
   
     for (int i = 1; i <= steps; i++) {
       float t = i / (float) steps;
