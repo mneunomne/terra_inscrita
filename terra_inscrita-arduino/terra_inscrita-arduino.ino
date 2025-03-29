@@ -365,7 +365,7 @@ void moveY(long steps, int dir, int microdelay, bool ignoreLimit) {
     curY += dir; // Update position counter
 
     // Step both motors simultaneously
-    digitalWrite(STEP_PIN_Y, HIGH);
+    digitalWrite(STEP_PIN_Y, HIGH);  
     delayMicroseconds(microdelay);
     digitalWrite(STEP_PIN_Y, LOW);
     delayMicroseconds(microdelay);
