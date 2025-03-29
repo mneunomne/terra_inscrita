@@ -32,7 +32,7 @@ class SerialController {
   void listenToPort() {
     if (port.available() > 0) {
       String inBuffer = port.readStringUntil('\n');
-      println("inBuffer: " + inBuffer);
+      //println("inBuffer: " + inBuffer);
       if (inBuffer != null && inBuffer.contains("OK")) {
         lineIndex++;
         if (lineIndex >= lines.length) {
@@ -45,6 +45,7 @@ class SerialController {
   }
   
   void sendLine() {
+    println("[MachineController] Sending line " + lineIndex + "..." + lines.length);
     ArrayList<PVector> group = curveManager.getCurrentCurve();
     PVector[] bezierPoints = curveManager.prepareBezierPoints(group);
     String gcode = bezierToGcode(bezierPoints[0], bezierPoints[1], bezierPoints[2], bezierPoints[3]);
@@ -108,7 +109,7 @@ class SerialController {
     prevPosition = new PVector(currentPosition.x, currentPosition.y);
     currentPosition.x = ((float(tokens[1]) / curveManager.steps_per_pixel) * -1) / pg.width * width;
     currentPosition.y = (float(tokens[2]) / curveManager.steps_per_pixel) / pg.height * width + (height - width) / 2;
-    println("currentPosition", currentPosition.x, currentPosition.y);
+    //println("currentPosition", currentPosition.x, currentPosition.y);
     
     if (server != null) {
       JSONObject latlng = mapCoordinator.getLatLngFromPos(currentPosition);

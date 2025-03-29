@@ -38,14 +38,14 @@ int canvas_width = steps_per_pixel * 1000;
 int canvas_height = steps_per_pixel * 1000;
 
 
-int microdelay = 500;
+int microdelay = 100;
 
 #include <GCodeParser.h>
 
 GCodeParser GCode = GCodeParser();
 
 int minDelay = 2;
-int maxDelayDefault = 500;
+int maxDelayDefault = 100;
 
 boolean reachedXLimit = false;
 boolean reachedYLimit = false;
@@ -146,7 +146,6 @@ bool checkLimitY() {
 void listenToPort() {
   while (Serial.available() > 0) {
     char incomingChar = Serial.read();
-    
     // Add the character to the G-code parser
     if (GCode.AddCharToLine(incomingChar)) { // Process the full line when received
       parseAndExecuteGCode(); // Parse and execute the G-code command
@@ -160,7 +159,7 @@ void parseAndExecuteGCode() {
   if (GCode.HasWord('G0') || GCode.HasWord('G1')) {
     long x = GCode.GetWordValue('X');
     long y = GCode.GetWordValue('Y');
-    move(x, y, 200);
+    move(x, y, microdelay);
   } else if (GCode.HasWord('G2') || GCode.HasWord('G3')) {
     bool clockwise = GCode.HasWord('G2');
     long x = GCode.GetWordValue('X');
@@ -172,8 +171,8 @@ void parseAndExecuteGCode() {
 }
 
 void goHome () {
-  moveX(100000L, 1, 200, false);
-  moveY(100000L, -1, 200, false);
+  moveX(100000L, 1, microdelay, false);
+  moveY(100000L, -1, microdelay, false);
 } 
 
 
@@ -366,7 +365,7 @@ void moveY(long steps, int dir, int microdelay, bool ignoreLimit) {
     curY += dir; // Update position counter
 
     // Step both motors simultaneously
-    digitalWrite(STEP_PIN_Y, HIGH);  cbvmicrodelay
+    digitalWrite(STEP_PIN_Y, HIGH);
     delayMicroseconds(microdelay);
     digitalWrite(STEP_PIN_Y, LOW);
     delayMicroseconds(microdelay);

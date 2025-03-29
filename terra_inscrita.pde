@@ -13,7 +13,7 @@ PGraphics pg;
 PImage bg;
 
 // Configuration
-boolean saveFrames = true;
+boolean saveFrames = false;
 boolean animation = false;
 boolean setByMouse = false;
 
@@ -41,15 +41,16 @@ void setup() {
   curveManager.loadData("rios_barreiras_escritas.csv");
   curveManager.calculateCurves();
   uiManager.drawImage();
+  animation = true;
 }
 
 void draw() {
   serialController.listenToPort();
-  
+    uiManager.drawImage();
   // Draw line tracking current movement
-  stroke(0, 0, 0, 125);
+  stroke(255, 0, 0, 125);
   noFill();
-  strokeWeight(2);
+  strokeWeight(3);
   PVector prev = serialController.getPrevPosition();
   PVector current = serialController.getCurrentPosition();
   if (prev.x != 0 && prev.y != 0) {
