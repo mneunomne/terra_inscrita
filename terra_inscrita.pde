@@ -19,11 +19,10 @@ boolean setByMouse = false;
 
 void setup() {
   // Setup canvas and background
-  size(596, 842, P2D); // A4 paper in pixels (72 dpi)
+  size(1000, 1000, P2D); // A4 paper in pixels (72 dpi)
   
   bg = loadImage("bg.png");
   background(255);
-  image(bg, 0, 0, width, height);
 
   // Initialize PGraphics object
   pg = createGraphics(1000, 1000);
@@ -40,22 +39,27 @@ void setup() {
   // Load data and prepare visualization
   curveManager.loadData("rios_barreiras_escritas3.csv");
   curveManager.calculateCurves();
+  curveManager.calculateGCode();
   uiManager.drawImage();
-  animation = true;
 }
 
 void draw() {
   serialController.listenToPort();
-    uiManager.drawImage();
+  // uiManager.drawImage();
   // Draw line tracking current movement
+  background(255);
+  image(pg, 0, 0, width, width);
   stroke(255, 0, 0, 125);
   noFill();
-  strokeWeight(3);
+  strokeWeight(1);
   PVector prev = serialController.getPrevPosition();
   PVector current = serialController.getCurrentPosition();
   if (prev.x != 0 && prev.y != 0) {
     line(prev.x, prev.y, current.x, current.y);
   }
+  strokeWeight(2);
+  // draw red circle at current position
+  ellipse(current.x, current.y, 20, 20);
 }
 
 void keyPressed() {

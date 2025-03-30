@@ -24,7 +24,7 @@ class UIManager {
   
     displayCurveStats();
     pg.endDraw();
-    parent.image(pg, 0, (height - width) / 2, width, width);
+    //parent.image(pg, 0, (height - width) / 2, width, width);
   
     if (animation) updateAnimation();
   }
