@@ -8,7 +8,7 @@ class CurveManager {
   ArrayList<String> curves_gcode = new ArrayList<String>();
 
   // Constants and parameters
-  float D = 2; // Distance threshold to simplify points into one curve
+  float D = 7; // Distance threshold to simplify points into one curve
   float d = 20;
   int steps_per_pixel = 34;
   int curveIndex = 0;
@@ -42,7 +42,7 @@ class CurveManager {
     curves.clear();
     ArrayList<PVector> group = new ArrayList<PVector>();
     float accumulatedDistance = 0;
-    float angleThreshold = 15; // Angle change threshold in degrees
+    float angleThreshold = 0; // Angle change threshold in degrees
     Float lastAngle = null;
 
     for (int i = 1; i < points.length; i++) {

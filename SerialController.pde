@@ -32,9 +32,16 @@ class SerialController {
   void listenToPort() {
     if (port.available() > 0) {
       String inBuffer = port.readStringUntil('\n');
-      println("inBuffer: " + inBuffer);
-      if (inBuffer != null && inBuffer.contains("OK")) {
-        sendLine();
+      if (inBuffer != null){
+        println("inBuffer: " + inBuffer);
+        if (inBuffer.contains("OK")) {
+          sendLine();
+        }
+        if (inBuffer.contains("r")) {
+            // start
+            serialController.sendLine();
+            curveManager.incrementCurveIndex();
+        }
       }
     }
   }
