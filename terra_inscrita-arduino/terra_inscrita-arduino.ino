@@ -197,7 +197,7 @@ void moveArc(long startX, long startY, long endX, long endY, long i, long j, boo
   if (clockwise && endAngle > startAngle) endAngle -= 2 * M_PI;
   if (!clockwise && endAngle < startAngle) endAngle += 2 * M_PI;
 
-  int steps = 10; // Resolution of the arc
+  int steps = 100; // Resolution of the arc
   for (int s = 0; s <= steps; s++) {
     float t = (float)s / steps;
     float angle = startAngle + t * (endAngle - startAngle);

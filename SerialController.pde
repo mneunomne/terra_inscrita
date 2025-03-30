@@ -34,25 +34,25 @@ class SerialController {
       String inBuffer = port.readStringUntil('\n');
       println("inBuffer: " + inBuffer);
       if (inBuffer != null && inBuffer.contains("OK")) {
-        lineIndex++;
-        if (lineIndex >= lines.length) {
-          curveManager.incrementCurveIndex();
-          lineIndex = 0;
-        }
         sendLine();
       }
     }
   }
   
   void sendLine() {
-    //println("[MachineController] Sending line " + lineIndex);
     String gcode = curveManager.getCurrentGCode();
     lines = split(gcode, '\n');
-    if (lineIndex < lines.length && lines[lineIndex].contains("G")) {
-      PVector pos = updateCurrentPosition(lines[lineIndex]);
-      port.write(lines[lineIndex] + "\n");
+    if (lineIndex >= lines.length || !lines[lineIndex].contains("G")) {
+      lineIndex = 0;
+      curveManager.incrementCurveIndex();
+      gcode = curveManager.getCurrentGCode();
     }
-    lineIndex = (lineIndex + 1) % lines.length;
+    lines = split(gcode, '\n');
+    println("[MachineController] Sending line " + lines[lineIndex]);
+    PVector pos = updateCurrentPosition(lines[lineIndex]);
+    port.write(lines[lineIndex] + "\n");
+    lineIndex++;
+    //lineIndex = (lineIndex + 1) % lines.length;
   }
   
   PVector updateCurrentPosition(String gcodeLine) {

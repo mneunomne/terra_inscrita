@@ -87,11 +87,20 @@ class CurveManager {
       curves_gcode.add(gcode);
     }
   }
+  int calculateSteps(PVector p0, PVector p1, PVector p2, PVector p3) {
+    float d0 = PVector.dist(p0, p3);
+    float d1 = PVector.dist(p0, p1) + PVector.dist(p1, p2) + PVector.dist(p2, p3);
+    float curvature = (d1 - d0) / d0; // Higher values mean more curvature
+
+    int minSteps = 2;
+    int maxSteps = 20;
+    return int(lerp(minSteps, maxSteps, constrain(curvature, 0, 1)));
+  }
 
   String bezierToGcode(PVector p0, PVector p1, PVector p2, PVector p3) {
     StringBuilder gcode = new StringBuilder("G0 X").append(p0.x).append(" Y").append(p0.y).append("\n");
     PVector prevPoint = p0;
-    int steps = 6;
+    int steps = calculateSteps(p0, p1, p2, p3);
 
     for (int i = 1; i <= steps; i++) {
       float t = i / (float) steps;
@@ -102,8 +111,8 @@ class CurveManager {
         boolean clockwise = isClockwise(prevPoint, p, center);
         gcode.append(clockwise ? "G2" : "G3")
           .append(" X").append(p.x).append(" Y").append(p.y)
-          .append(" I").append(center.x - prevPoint.x)
-          .append(" J").append(center.y - prevPoint.y).append("\n");
+          .append(" I").append(center.x)
+          .append(" J").append(center.y).append("\n");
       } else {
         gcode.append("G1 X").append(p.x).append(" Y").append(p.y).append("\n");
       }
