@@ -8,7 +8,7 @@ class CurveManager {
   ArrayList<String> curves_gcode = new ArrayList<String>();
 
   // Constants and parameters
-  float D = 7; // Distance threshold to simplify points into one curve
+  float D = 12; // Distance threshold to simplify points into one curve
   float d = 20;
   int steps_per_pixel = 34;
   int curveIndex = 0;
